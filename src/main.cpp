@@ -109,7 +109,7 @@ void addMarbleToBucket(
     int color)
 {
     // check for color already present TID1
-    for( int colorInBucket : theBucketVector[nb] )
+    for( int colorInBucket : theBucketVector[nb] ) 
             if( colorInBucket == color )
                 return;
 
@@ -118,6 +118,19 @@ void addMarbleToBucket(
 
     // remove from supply
     theColorVector[color]--;
+
+    // mark all color pairs in bucket done
+    for( int colorInBucket : theBucketVector[nb] )  {
+        if( colorInBucket  == color )
+            continue;
+        int c1 = color;
+        int c2 = colorInBucket;
+        if( c1 > c2 ) {
+            c1 = colorInBucket;
+            c2 = color;
+        }
+        theMatchMap.find(std::pair(c1,c2))->second = eMatchState::done;
+    }
 
 }
 
