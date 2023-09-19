@@ -98,13 +98,27 @@ int BucketContainsOne(int nb, const std::pair<int, int> &cp)
     }
     return -1;
 }
+/// @brief Add marble to bucket
+/// @param nb bucket to be added to
+/// @param color color of marble added
+///
+/// NOP if color is already in bucket
 
 void addMarbleToBucket(
     int nb,
     int color)
 {
+    // check for color already present TID1
+    for( int colorInBucket : theBucketVector[nb] )
+            if( colorInBucket == color )
+                return;
+
+    // add to bucket
     theBucketVector[nb].push_back(color);
+
+    // remove from supply
     theColorVector[color]--;
+
 }
 
 
