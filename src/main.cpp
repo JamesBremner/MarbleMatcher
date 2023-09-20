@@ -39,47 +39,32 @@ class cMarbleMatcher
 
     void clearImpossible()
     {
-        matchMapIter_t i;
-        for (
-            i = myMatchMap.begin();
-            i != myMatchMap.end();
-            i++)
-        {
-            if (i->second == eMatchState::impossible)
+        std::for_each(
+            myMatchMap.begin(), myMatchMap.end(),
+            [](matchMap_t::value_type &m)
             {
-                i->second = eMatchState::waiting;
-            }
-        }
+                if (m.second == eMatchState::impossible)
+                    m.second = eMatchState::waiting;
+            });
     }
 
     matchMapIter_t nextMatchWaiting()
     {
-        matchMapIter_t i;
-        for (
-            i = myMatchMap.begin();
-            i != myMatchMap.end();
-            i++)
-        {
-            if (i->second == eMatchState::waiting)
+        return std::find_if(
+            myMatchMap.begin(), myMatchMap.end(),
+            [](matchMap_t::value_type &m) -> bool
             {
-                return i;
-            }
-        }
-        return i;
+                return (m.second == eMatchState::waiting);
+            });
     }
-    int MatchCount()
+    int matchCount()
     {
-        int count = 0;
-        matchMapIter_t i;
-        for (
-            i = myMatchMap.begin();
-            i != myMatchMap.end();
-            i++)
-        {
-            if (i->second == eMatchState::done)
-                count++;
-        }
-        return count;
+        return std::count_if(
+            myMatchMap.begin(), myMatchMap.end(),
+            [](matchMap_t::value_type &m) -> bool
+            {
+                return (m.second == eMatchState::done);
+            });
     }
     int nextBucketWithSpace(int req)
     {
@@ -235,6 +220,16 @@ public:
         }
     }
 
+    void set(
+        int bucketCount,
+        int bucketcapacity,
+        const std::vector<int>& vColor    )
+    {
+        theBucketCount = bucketCount;
+        theBucketCapacity = bucketcapacity;
+        theColorVector = vColor;
+    }
+
     void solve()
     {
         // construct result data structure
@@ -256,7 +251,7 @@ public:
 
     void display()
     {
-        std::cout << "\nShared Colors: " << MatchCount()
+        std::cout << "\nShared Colors: " << matchCount()
                   << "\nColors in each bucket:\n";
         for (auto &vc : myBucketVector)
         {
@@ -265,10 +260,29 @@ public:
             std::cout << "\n";
         }
     }
+
+    static bool tests()
+    {
+        bool pass = true;
+        cMarbleMatcher matcher;
+
+        matcher.set(8,5,{4,4,4,4,4,4,4,4,4,4,});
+        matcher.solve();
+        if( matcher.matchCount() != 42 )
+        {
+            std::cout << "8 Bucket test failed\n";
+            pass = false;
+        }
+
+        return pass;
+    }
 };
 
 main()
 {
+    if( ! cMarbleMatcher::tests() )
+        return 1;
+
     cMarbleMatcher theMarbleMatcher;
 
     theMarbleMatcher.getInput();
